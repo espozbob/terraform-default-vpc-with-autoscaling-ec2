@@ -29,11 +29,11 @@ module "webserver_cluster" {
   dev_fqdn          = "*.example.com"           // required for Domain for ACM Certificate
 }
 
-//Create A record on the route53 for your dns-zone ID
+//Create A record on the route53 for your hosted-zone ID
 
 resource "aws_route53_record" "www" {
-  zone_id = "(YOUR-DNS-ZONE-ID)"
-  name    = "www"
+  zone_id = "(YOUR-DNS-HOSTED-ZONE-ID)"
+  name    = "(HOST-NAME)"
   type    = "A"
 
   alias {
@@ -41,6 +41,10 @@ resource "aws_route53_record" "www" {
     zone_id                = "${module.webserver_cluster.elb_zone_id}"
     evaluate_target_health = true
   }
+}
+
+output "elb_dns_name" {
+    value = "${module.webserver_cluster.elb_dns_name}"
 }
 ```
 
@@ -64,8 +68,8 @@ module "webserver_cluster" {
 //Create A record on the route53
 
 resource "aws_route53_record" "www" {
-  zone_id = "(YOUR-DNS-ZONE-ID)"
-  name    = "www"
+  zone_id = "(YOUR-DNS-HOSTED-ZONE-ID)"
+  name    = "(HOST-NAME)"
   type    = "A"
 
   alias {
@@ -73,6 +77,10 @@ resource "aws_route53_record" "www" {
     zone_id                = "${module.webserver_cluster.elb_zone_id}"
     evaluate_target_health = true
   }
+}
+
+output "elb_dns_name" {
+    value = "${module.webserver_cluster.elb_dns_name}"
 }
 
 ```
