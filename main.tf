@@ -216,7 +216,7 @@ resource "aws_elb" "web_asg_elb" {
 		unhealthy_threshold = 2
 		timeout = 3
 		interval = 30
-		target = "HTTP:${var.server_port}/elb-health-check"
+		target = "HTTP:${var.server_port}/"
 	}
 }
 
