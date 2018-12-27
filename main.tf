@@ -1,6 +1,6 @@
 data "aws_availability_zones" "all" {}
 
-data "aws_acm_certificate" "dev_yper" {
+data "aws_acm_certificate" "fqdn" {
   domain   = "${var.dev_fqdn}"
 }
 data "template_file" "user_data" {
@@ -211,7 +211,7 @@ resource "aws_elb" "web_asg_elb" {
 		lb_protocol = "https"
 		instance_port = "${var.server_port}"
 		instance_protocol = "http"
-        ssl_certificate_id = "${data.aws_acm_certificate.dev_yper.arn}"
+        ssl_certificate_id = "${data.aws_acm_certificate.fqdn.arn}"
 	}
 	health_check {
 		healthy_threshold = 2
