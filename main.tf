@@ -13,12 +13,10 @@ data "template_file" "user_data" {
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "web_instance_profile"
   role = "${aws_iam_role.web_instance_role.name}"
 }
 
 resource "aws_iam_role" "web_instance_role" {
-  name = "web_instance_role"
 
   assume_role_policy = <<EOF
 {
