@@ -25,7 +25,6 @@ Minimal setup: S3 Backend, Certificate, min size(2) auto-scaling, multiAZ suppor
 module "webserver_cluster" {
   source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
   cluster_name      = "myproject"               // required
-  ami_id            = "ami-123456789012345678"  // required for Base AMI image
   dev_fqdn          = "*.example.com"           // required for Domain for ACM Certificate
   remote_state_bucket = "example-com-terraform-state"  // required for s3 backend
   webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"  // required for s3 backend
