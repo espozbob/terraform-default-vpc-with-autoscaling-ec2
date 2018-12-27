@@ -21,6 +21,7 @@ Configs:
 ## Usage
 
 Minimal setup: S3 Backend, Certificate, min size(2) auto-scaling, multiAZ support, Seoul region
+
 ```
 module "webserver_cluster" {
   source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
@@ -29,11 +30,28 @@ module "webserver_cluster" {
   remote_state_bucket = "example-com-terraform-state"  // required for s3 backend
   webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"  // required for s3 backend
 }
+
+//Create A record on the route53 for your dns-zone ID
+
+resource "aws_route53_record" "www" {
+  zone_id = "(YOUR-DNS-ZONE-ID)"
+  name    = "www"
+  type    = "A"
+
+  alias {
+    name                   = "${module.webserver_cluster.elb_dns_name}"
+    zone_id                = "${module.webserver_cluster.elb_zone_id}"
+    evaluate_target_health = true
+  }
+}
 ```
 
+
 All options with default values:
+
 ```
 module "webserver_cluster" {
+    source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
     aws_region          = "ap-northeast-2"
     dev_fqdn            = "*.example.com"
     ami_id              = "ami-123456789012345678"
@@ -46,22 +64,11 @@ module "webserver_cluster" {
   
 }
 
-//Remote state bucket for DNS
-//Remote state key file for DNS(global/route53/terraform.tfstate)
-
-data "terraform_remote_state" "dns" {
-    backend = "s3"
-    config {
-                bucket = "$(var.remote_state_bucket}"
-                key = "$(var.remote_state_bucket_key}"
-                region = "${var.aws_region}"
-        }
-}
 
 //Create A record on the route53
 
 resource "aws_route53_record" "www" {
-  zone_id = "${data.terraform_remote_state.dns.dns_zone_id}"
+  zone_id = "(YOUR-DNS-ZONE-ID)"
   name    = "www"
   type    = "A"
 
