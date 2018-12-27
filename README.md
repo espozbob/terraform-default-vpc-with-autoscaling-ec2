@@ -1,2 +1,85 @@
-# terraform-default-vpc-with-autoscaling-ec2
-Terraform module for default-vpc with autoscaling ec2 instances on the multi-AZ
+## About
+Terraform module to bootstrap HTTPS Web Service with autoscaling ec2 instatnces within the default VPC on the multi-AZ.
+
+Features:
+* Default public subnets
+* Default internet gateway
+* MultiAZ mode for high availability 
+* Classic Load Balancer with a SSL Certificate(443)
+* Auto Scaling Group with a Launch Configuration
+* Instance Profile for the EC2 Instance
+
+
+Configs:
+- Security Group for instances: {port: 80, cidr:`0.0.0.0/0`}
+- Security Group for LB: {port: [80, 443], cidr:`0.0.0.0/0`}
+- Auto Scaling Groups: {availability_zones: all, health_check_type: elb}
+- Load Balancers: {cookie_stickyness: [80, 443], cookie_expiration_period: 600, listener:{lb_port:[80,443], instance_port:80}, health_check_target:"HTTP 80/elb-health-check"}
+
+
+
+## Usage
+
+Minimal setup: S3 Backend, Certificate, min size(2) auto-scaling, multiAZ support, Seoul region
+```
+module "webserver_cluster" {
+  source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
+  cluster_name      = "myproject"               // required
+  ami_id            = "ami-123456789012345678"  // required for Base AMI image
+  dev_fqdn          = "*.example.com"           // required for Domain for ACM Certificate
+  remote_state_bucket = "example-com-terraform-state"  // required for s3 backend
+  webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"  // required for s3 backend
+}
+```
+
+All options with default values:
+```
+module "webserver_cluster" {
+    aws_region          = "ap-northeast-2"
+    dev_fqdn            = "*.example.com"
+    ami_id              = "ami-123456789012345678"
+    cluster_name        = "webservers-stage"
+    remote_state_bucket = "example-com-terraform-state"
+    webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"
+    instance_type = "t2.micro"
+    min_size = 2
+    max_size = 2
+  
+}
+
+//Remote state bucket for DNS
+//Remote state key file for DNS(global/route53/terraform.tfstate)
+
+data "terraform_remote_state" "dns" {
+    backend = "s3"
+    config {
+                bucket = "$(var.remote_state_bucket}"
+                key = "$(var.remote_state_bucket_key}"
+                region = "${var.aws_region}"
+        }
+}
+
+//Create A record on the route53
+
+resource "aws_route53_record" "www" {
+  zone_id = "${data.terraform_remote_state.dns.dns_zone_id}"
+  name    = "www"
+  type    = "A"
+
+  alias {
+    name                   = "${module.webserver_cluster.elb_dns_name}"
+    zone_id                = "${module.webserver_cluster.elb_zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+```
+
+## Outputs
+
+* `instance_role_id`
+* `elb_dns_name`
+* `elb_zone_id`
+* `elb_security_group_id`
+* `elb_name`
+* `asg_name`
