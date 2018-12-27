@@ -19,15 +19,6 @@ variable "ami_id" {
 variable "cluster_name" {
     description = "모든 클러스터에 사용되는 리소스들의 구분이름"
 }
-variable "remote_state_bucket" {
-    description = "데이터베이스의 상태정보가 있는 S3 버킷명"
-}
-variable "db_remote_state_key" {
-    description = "데이터베이스의 상태정보가 있는 S3의 파일명"
-}
-variable "webserver_remote_state_key" {
-    description = "웹서버의 상태정보가 있는 S3의 파일명"
-}
 variable "instance_type" {
     description = "EC2 인스턴스 타입(예. t2.micro)"
     default = "t2.micro"

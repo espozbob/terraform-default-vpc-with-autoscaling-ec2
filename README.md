@@ -20,15 +20,13 @@ Configs:
 
 ## Usage
 
-Minimal setup: S3 Backend, Certificate, min size(2) auto-scaling, multiAZ support, Seoul region
+Minimal setup: Domain name, min size(2) auto-scaling, multiAZ support, Seoul region
 
 ```
 module "webserver_cluster" {
   source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
   cluster_name      = "myproject"               // required
   dev_fqdn          = "*.example.com"           // required for Domain for ACM Certificate
-  remote_state_bucket = "example-com-terraform-state"  // required for s3 backend
-  webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"  // required for s3 backend
 }
 
 //Create A record on the route53 for your dns-zone ID
@@ -51,14 +49,12 @@ All options with default values:
 
 ```
 module "webserver_cluster" {
-    source            = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
+    source              = "github.com/espozbob/terraform-default-vpc-with-autoscaling-ec2"
     aws_region          = "ap-northeast-2"
     dev_fqdn            = "*.example.com"
     ami_id              = "ami-123456789012345678"
-    cluster_name        = "webservers-stage"
-    remote_state_bucket = "example-com-terraform-state"
-    webserver_remote_state_key = "stage/webserver-cluster/terraform.tfstate"
-    instance_type = "t2.micro"
+    cluster_name        = "myproject"
+    instance_type       = "t2.micro"
     min_size = 2
     max_size = 2
   
